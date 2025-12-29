@@ -218,3 +218,99 @@ services:
 - ❌ You're still testing/iterating (build locally)
 
 **Note:** For this boilerplate, local build is recommended for most use cases.
+
+## Working with the Database
+
+### Connect to PostgreSQL Container
+
+**Option 1: Direct psql access (recommended):**
+```bash
+# Connect to database with psql
+docker exec -it postgres psql -U myuser -d mydb
+```
+
+**Option 2: Open bash shell first:**
+```bash
+# Open shell in postgres container
+docker exec -it postgres bash
+
+# Then inside container:
+psql -U myuser -d mydb
+```
+
+### Common SQL Commands
+
+Once connected with `psql`:
+
+```sql
+-- List all databases
+\l
+
+-- List all tables
+\dt
+
+-- List all users/roles
+\du
+
+-- Describe a table
+\d table_name
+
+-- Show current database
+SELECT current_database();
+
+-- Show PostgreSQL version
+SELECT version();
+
+-- Create a test table
+CREATE TABLE test (id SERIAL PRIMARY KEY, name TEXT);
+
+-- Insert data
+INSERT INTO test (name) VALUES ('example');
+
+-- Query data
+SELECT * FROM test;
+
+-- Exit psql
+\q
+```
+
+### Run SQL from Backup Container
+
+You can also access the database from the backup container:
+
+```bash
+# Open shell in backup container
+docker exec -it postgres_backup bash
+
+# Connect to database (uses environment variables)
+psql -h $PGHOST -U $PGUSER -d $PGDATABASE
+
+# Or one-liner
+docker exec -it postgres_backup psql -h postgres -U myuser -d mydb
+```
+
+### Execute SQL from Command Line
+
+Run queries without entering interactive mode:
+
+```bash
+# Single query
+docker exec postgres psql -U myuser -d mydb -c "SELECT version();"
+
+# Run SQL file
+docker exec -i postgres psql -U myuser -d mydb < script.sql
+
+# Export query results to CSV
+docker exec postgres psql -U myuser -d mydb -c "COPY (SELECT * FROM test) TO STDOUT CSV HEADER" > output.csv
+```
+
+### Useful psql Tips
+
+- `\?` - Show all psql commands
+- `\h` - Show SQL command help
+- `\timing on` - Show query execution time
+- `\x` - Toggle expanded display (better for wide tables)
+- `\conninfo` - Show connection information
+- Arrow up/down - Navigate command history
+- `Ctrl+C` - Cancel current command
+- `Ctrl+D` or `\q` - Exit psql
