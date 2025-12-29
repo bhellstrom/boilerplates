@@ -1,0 +1,6 @@
+# Daily backup at midnight (uncomment when testing is done):
+0 0 * * * BACKUP_DIR=/backups PGHOST=postgres PGUSER=myuser PGDATABASE=mydb PGPASSWORD=$(cat /run/secrets/postgres_password) RETENTION_DAYS=7 /bin/bash /usr/local/bin/backup.sh
+
+# Testing: backup every minute
+# * * * * * BACKUP_DIR=/backups PGHOST=postgres PGUSER=myuser PGDATABASE=mydb PGPASSWORD=$(cat /run/secrets/postgres_password) RETENTION_DAYS=7 /bin/bash /usr/local/bin/backup.sh
+

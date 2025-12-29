@@ -1,0 +1,41 @@
+# Secrets and sensitive data
+secrets/*
+*.secret
+*.key
+*.pem
+.env
+
+# Backup files
+backups/*.sql.gz
+backups/*.log
+*.sql.gz
+*.dump
+
+# Data directories
+data/
+pgdata/
+*/data/
+postgres-data/
+
+# Logs
+*.log
+logs/
+*/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+*~
+.*.swp
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Docker
+.dockerignore
+
+# Keep directory structure but ignore contents
+!backups/.gitkeep
+!secrets/.gitkeep

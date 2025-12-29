@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_DB: mydb
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./postgres-conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - prod-network
+    secrets:
+      - postgres_password
+    command: ["-c", "config_file=/etc/postgresql/postgresql.conf"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    container_name: postgres_backup
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PGUSER: myuser
+      PGDATABASE: mydb
+      PGHOST: postgres
+      BACKUP_DIR: /backups
+      RETENTION_DAYS: 7
+    volumes:
+      - ./backups:/backups
+    networks:
+      - prod-network
+    secrets:
+      - postgres_password
+
+volumes:
+  pgdata:
+
+networks:
+  prod-network:
+    driver: bridge
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
+
