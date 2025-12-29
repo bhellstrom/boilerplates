@@ -167,3 +167,54 @@ docker compose logs postgres | grep error
 ## License
 
 Internal use only
+
+## Advanced: Push Backup Image to Docker Hub
+
+If you want to share the backup container image across multiple servers or with a team, you can push it to Docker Hub.
+
+### Prerequisites
+- Docker Hub account
+- Logged in: `docker login`
+
+### Steps
+
+1. **Build and tag the image:**
+```bash
+cd backup/
+docker build -t yourusername/postgres-backup:latest .
+```
+
+2. **Tag with version (optional but recommended):**
+```bash
+docker tag yourusername/postgres-backup:latest yourusername/postgres-backup:1.0.0
+```
+
+3. **Push to Docker Hub:**
+```bash
+docker push yourusername/postgres-backup:latest
+docker push yourusername/postgres-backup:1.0.0
+```
+
+4. **Update docker-compose.yml to use the image:**
+```yaml
+services:
+  backup:
+    image: yourusername/postgres-backup:latest
+    # Remove the 'build:' section
+    container_name: postgres_backup
+    # ... rest of config
+```
+
+### When to Push to Docker Hub
+
+**Push when:**
+- ✅ You have multiple servers running the same setup
+- ✅ You want to share with team members
+- ✅ You want faster deployments (no build time)
+
+**Don't push when:**
+- ❌ Single server deployment (local build is simpler)
+- ❌ You want to keep backup logic private
+- ❌ You're still testing/iterating (build locally)
+
+**Note:** For this boilerplate, local build is recommended for most use cases.
